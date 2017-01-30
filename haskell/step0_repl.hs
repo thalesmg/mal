@@ -1,28 +1,24 @@
 import System.IO (hFlush, stdout)
+import System.Exit (exitSuccess)
 
-import Readline (readline, load_history)
 
--- read
-mal_read str = str
+mal_read = id
 
--- eval
-eval ast env = ast
+mal_eval = id
 
--- print
-mal_print exp = exp
+mal_print = putStrLn
 
--- repl
-rep line = mal_print $ eval (mal_read line) ""
+mal_rep = mal_print . mal_eval . mal_read
 
-repl_loop = do
-    line <- readline "user> "
-    case line of
-        Nothing -> return ()
-        Just "" -> repl_loop
-        Just str -> do
-            putStrLn $ rep str
-            repl_loop
-
+main :: IO ()
 main = do
-    load_history
-    repl_loop
+  putStr "user> "
+  -- This is needed for the compiled version!
+  -- Else it prints:
+  --  asdf
+  --  used> asdf
+  --  *Waits for input and repeats*
+  hFlush stdout
+  input <- getLine
+  mal_rep input
+  main
